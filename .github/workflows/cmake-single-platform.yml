@@ -1,40 +1,57 @@
-# This starter workflow is for a CMake project running on a single platform. There is a different starter workflow if you need cross-platform coverage.
-# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
-name: CMake configure and build
+name: clang:ubuntu
 
-on:
-  workflow_dispatch:
-  push:
-    branches: [ "ci" ]
-  pull_request:
-    branches: [ "ci" ]
-
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
+on: push
 
 jobs:
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
-    # You can convert this to a matrix build if you need cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build_mode: ["Release"]
+        os: ["ubuntu-24.04"]
+        clang: ["18"]
+
+    runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      - name: Cache and Install Dependencies
+        id: cache-and-install
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/.deps
+          key: ${{ matrix.os }}-${{ hashFiles('**/lockfiles') }}-${{ hashFiles('CMakeLists.txt') }}
 
-    - name: Build
-      # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      - name: Update Apt
+        run: |
+          sudo apt update
+          sudo apt upgrade
+          sudo apt dist-upgrade
 
-    - name: Test
-      working-directory: ${{github.workspace}}/build
-      # Execute tests defined by the CMake configuration.
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest -C ${{env.BUILD_TYPE}}
+      - name: Install Build Tools
+        run: sudo apt install build-essential ninja-build clang-${{ matrix.clang }} cmake wget libxrandr-dev nasm libstdc++-14-dev
 
+      - name: Install VCPKG
+        if: steps.cache-and-install.outputs.cache-hit != 'true'
+        run: |
+          git clone --depth=1 https://github.com/microsoft/vcpkg.git ${{ github.workspace }}/.deps/vcpkg
+          cd ${{ github.workspace }}/.deps/vcpkg
+          ./bootstrap-vcpkg.sh -disableMetrics
+
+      - name: Install Dependencies
+        env:
+          VCPKG_ROOT: ${{ github.workspace }}/.deps/vcpkg
+        run: vcpkg install fmt range-v3 triton llvm-15 llvm-15-dev llvm-15-tools
+
+      - name: Configure and Build
+        env:
+          CC: clang-${{ matrix.clang }}
+          CXX: clang++-${{ matrix.clang }}
+          VCPKG_ROOT: ${{ github.workspace }}/.deps/vcpkg
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/.deps/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_INSTALLED_DIR=${{ github.workspace }}/.deps/vcpkg/installed -DCMAKE_BUILD_TYPE=${{ matrix.build_mode }} -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -GNinja
+          ninja
