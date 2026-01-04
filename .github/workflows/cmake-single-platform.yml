@@ -43,7 +43,7 @@ jobs:
       - name: Install Dependencies
         env:
           VCPKG_ROOT: ${{ github.workspace }}/.deps/vcpkg
-        run: vcpkg install fmt range-v3 triton llvm
+        run: vcpkg install fmt range-v3 triton
 
       - name: Configure and Build
         env:
