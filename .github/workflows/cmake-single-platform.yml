@@ -26,9 +26,9 @@ jobs:
 
       - name: Update Apt
         run: |
-          sudo apt update
-          sudo apt upgrade
-          sudo apt dist-upgrade
+          #sudo apt update
+          #sudo apt upgrade
+          #sudo apt dist-upgrade
 
       - name: Install Build Tools
         run: sudo apt install build-essential ninja-build clang-${{ matrix.clang }} cmake wget libxrandr-dev nasm libstdc++-14-dev llvm-15 llvm-15-dev llvm-15-tools
@@ -44,6 +44,9 @@ jobs:
         env:
           VCPKG_ROOT: ${{ github.workspace }}/.deps/vcpkg
         run: vcpkg install fmt range-v3 triton
+
+      - name: List all files
+        run: find
 
       - name: Configure and Build
         env:
