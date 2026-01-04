@@ -31,7 +31,7 @@ jobs:
           sudo apt dist-upgrade
 
       - name: Install Build Tools
-        run: sudo apt install build-essential ninja-build clang-${{ matrix.clang }} cmake wget libxrandr-dev nasm libstdc++-14-dev
+        run: sudo apt install build-essential ninja-build clang-${{ matrix.clang }} cmake wget libxrandr-dev nasm libstdc++-14-dev llvm-15 llvm-15-dev llvm-15-tools
 
       - name: Install VCPKG
         if: steps.cache-and-install.outputs.cache-hit != 'true'
@@ -43,7 +43,7 @@ jobs:
       - name: Install Dependencies
         env:
           VCPKG_ROOT: ${{ github.workspace }}/.deps/vcpkg
-        run: vcpkg install fmt range-v3 triton llvm-15 llvm-15-dev llvm-15-tools
+        run: vcpkg install fmt range-v3 triton llvm
 
       - name: Configure and Build
         env:
