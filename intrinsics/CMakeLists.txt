@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(intrinsics)
 
-SET (CMAKE_CXX_COMPILER "clang++")
+SET (CMAKE_CXX_COMPILER "clang++-15")
 
 set(HELPER_CLANG_FLAGS
     -std=c++17
@@ -21,7 +21,7 @@ set(SOURCES "main.cpp")
 add_custom_command(OUTPUT
     "${CMAKE_CURRENT_BINARY_DIR}/vmprotect64.ll"
     "${CMAKE_CURRENT_BINARY_DIR}/vmprotect32.ll"
-    COMMAND "${CMAKE_CXX_COMPILER}" ${HELPER_CLANG_FLAGS} -DADDRESS_SIZE_BITS=64 -m64 -S main.cpp -o vmprotect32.ll
+    COMMAND "${CMAKE_CXX_COMPILER}" ${HELPER_CLANG_FLAGS} -DADDRESS_SIZE_BITS=32 -m64 -S main.cpp -o vmprotect32.ll
     COMMAND "${CMAKE_CXX_COMPILER}" ${HELPER_CLANG_FLAGS} -DADDRESS_SIZE_BITS=64 -m64 -S main.cpp -o vmprotect64.ll
     MAIN_DEPENDENCY ${SOURCES}
     DEPENDS ${SOURCES}

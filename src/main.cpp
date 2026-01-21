@@ -62,7 +62,9 @@ int main(int argc, char** argv)
     llvm::cl::ParseCommandLineOptions(args.size(), args.data());
 
     auto lifter = std::make_shared<Lifter>();
-    auto tracer = std::make_shared<Tracer>(triton::arch::architecture_e::ARCH_X86_64);
+    // TODO: WARNING: this must be changed manually to switch between architectures
+    //auto tracer = std::make_shared<Tracer>(triton::arch::architecture_e::ARCH_X86_64);
+    auto tracer = std::make_shared<Tracer>(triton::arch::architecture_e::ARCH_X86);
     Explorer explorer(lifter, tracer);
 
     auto rtn = explorer.explore(entrypoint);

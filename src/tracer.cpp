@@ -351,6 +351,8 @@ std::optional<vm::Instruction> Tracer::process_vmenter()
             if (r2 != rsp_register())
             {
                 vip_register_name = r2.getName();
+                logger::warn("vip_register_name: {}", vip_register_name.value_or("empty"));
+                //disassembly(insn);
             }
             symbolizeRegister(r1, r1.getName());
         }

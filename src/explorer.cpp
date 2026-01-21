@@ -18,6 +18,11 @@ std::unique_ptr<vm::Routine> Explorer::explore(uint64_t address)
 
     block = vm::Routine::begin(address);
 
+    //vm::Routine r(address);
+    //auto dot_graph = r.dot();
+
+    auto dot_graph = block->owner->dot();
+
     std::visit(*this, tracer->step(step_t::stop_before_branch));
 
     worklist.push(address);
@@ -47,7 +52,7 @@ std::unique_ptr<vm::Routine> Explorer::explore(uint64_t address)
 
         while (!terminate)
         {
-            // logger::info("execute: 0x{:x}", tracer->rip());
+            logger::info("execute: 0x{:x}", tracer->rip());
             // Process instruction.
             //
             std::visit(*this, tracer->step(step_t::stop_before_branch));

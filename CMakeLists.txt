@@ -2,20 +2,22 @@ cmake_minimum_required(VERSION 3.15)
 
 project(titan)
 
-set(FETCHCONTENT_DEBUG_MODE ON)
-include(FetchContent)
-FetchContent_Declare(
-  fmt
-  GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG 10.2.1
-)
-
-FetchContent_MakeAvailable(fmt)
+set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_MESSAGE_LOG_LEVEL STATUS)  # or DEBUG for even more
 
 # Packages
 find_package(fmt CONFIG REQUIRED)
 find_package(LLVM 15.0 CONFIG REQUIRED)
+#find_package(LLVM 16.0 CONFIG REQUIRED)
 find_package(triton CONFIG REQUIRED)
+
+get_target_property(_loc triton::triton IMPORTED_LOCATION_RELEASE)
+if(NOT _loc)
+  set_property(TARGET triton::triton
+    PROPERTY IMPORTED_LOCATION
+    "/usr/local/lib/libtriton.so")
+endif()
+
 find_package(range-v3 CONFIG REQUIRED)
 
 file(GLOB_RECURSE TITAN_SOURCES  CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")

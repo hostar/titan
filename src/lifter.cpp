@@ -33,6 +33,7 @@ Lifter::Lifter() : ir(context)
     auto parsed = llvm::parseIRFile(intrinsics, err, context);
     if (parsed == nullptr)
     {
+        err.print("Error when parsing intrinsics", llvm::errs());
         logger::error("Lifter::Lifter: Failed to parse intrinsics file");
     }
     module = std::move(parsed);

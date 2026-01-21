@@ -36,7 +36,10 @@ std::vector<uint64_t> get_possible_targets(llvm::Value* ret)
     std::vector<uint64_t> targets;
     // Does not matter which arch we use.
     //
-    triton::Context api(triton::arch::ARCH_X86_64);
+    
+    // TODO: testing
+    //triton::Context api(triton::arch::ARCH_X86_64);
+    triton::Context api(triton::arch::ARCH_X86);
     api.setAstRepresentationMode(triton::ast::representations::SMT_REPRESENTATION);
 
     if (auto inst = llvm::dyn_cast<llvm::Instruction>(ret))
