@@ -342,6 +342,7 @@ std::optional<vm::Instruction> Tracer::process_vmenter()
             if (r2 == rsp_register() && r1.getBitSize() == r2.getBitSize())
             {
                 vsp_register_name = r1.getName();
+                logger::warn("vsp_register_name: {}", vsp_register_name.value_or("empty"));
             }
         }
         else if (op_mov_register_memory(insn))
